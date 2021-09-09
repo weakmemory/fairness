@@ -1,0 +1,5 @@
+(setq package-check-signature nil)
+(call-interactively 'package-refresh-contents)
+;(call-interactively 'package-install t (vector gnu-elpa-keyring-update))
+(call-interactively 'package-install-selected-packages)
+;; (package-install-selected-packages)    

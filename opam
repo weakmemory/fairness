@@ -1,0 +1,19 @@
+opam-version: "2.0"
+name: "coq-relive"
+maintainer: "Anton Podkopaev <podkoav239@gmail.com>"
+authors: ["Viktor Vafeiadis <viktor@mpi-sws.org>"
+          "Egor Namakonov <ok.john.rus@gmail.com>"
+          "Ori Lahav <ori.lahav@tau.ac.il>"
+          "Anton Podkopaev <podkoav239@gmail.com>"]
+bug-reports: "https://gitlab.mpi-sws.org/viktor/relive/issues"
+dev-repo: "git+https://gitlab.mpi-sws.org/viktor/relive.git"
+
+synopsis: "Supplementary Coq code for the _Making Weak Memory Models Fair_ paper"
+
+depends: [
+  "coq" { (>= "8.9.1" & < "8.13~") | (= "dev") }
+  "coq-hahn" { (= "dev") }
+]
+
+build: [make "-j%{jobs}% -k"]
+install: [make "install"]

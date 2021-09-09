@@ -1,0 +1,77 @@
+# based on https://gist.github.com/niw/bed28f823b4ebd2c504285ff99c1b2c2
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/bionic64"
+
+  config.vm.provider :virtualbox do |v|
+    v.gui = true
+    v.memory = 6144
+    # see https://github.com/joelhandwell/ubuntu_vagrant_boxes/issues/1
+    # for the problem discussion and other possible solutions
+    v.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]
+  end
+
+  # Currently "ubuntu/bionic64" on VirtualBox requires `type: "virtualbox"`
+  # to make synced folder works.
+  config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
+
+  # Update repositories
+  config.vm.provision :shell, inline: "sudo apt update -y"
+
+  # Upgrade installed packages
+  config.vm.provision :shell, inline: "sudo apt upgrade -y"
+
+  # Add desktop environment
+  config.vm.provision :shell, inline: "sudo apt install -y --no-install-recommends ubuntu-desktop"
+  config.vm.provision :shell, inline: "sudo apt install -y --no-install-recommends virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11"
+
+  # Add `vagrant` to Administrator
+  config.vm.provision :shell, inline: "sudo usermod -a -G sudo vagrant"
+
+  # install standard emacs
+  config.vm.provision :shell, inline: "sudo apt install -y emacs"
+
+  # install and configure opam; see https://opam.ocaml.org/doc/Install.html
+  config.vm.provision :shell, inline: "sudo add-apt-repository ppa:avsm/ppa; sudo apt update; sudo apt install opam"
+  config.vm.provision :shell, inline: "sudo apt install -y libc6-dev"
+  config.vm.provision :shell, inline: "sudo apt install -y libgmp-dev"
+
+  # prepare dedicated opam environment
+  config.vm.provision :shell, privileged: false, inline: "opam init -a; eval $(opam env)"
+  # don't waste time on creating another switch
+  # config.vm.provision :shell, privileged: false, inline: "opam switch create artifact 4.12.0; opam switch set artifact; eval $(opam env)"
+
+  # install required coq packages
+  config.vm.provision :shell, privileged: false, inline: "opam install -y --assume-depexts coq.8.13.2"
+  config.vm.provision :shell, privileged: false, inline: "opam remote add coq-weakmemory-local -k git https://github.com/weakmemory/local-coq-opam-archive"
+  config.vm.provision :shell, privileged: false, inline: "opam install -y --assume-depexts coq-hahn"
+
+  # copy and prepare artifact
+  config.vm.provision "file", source: "artifact.zip", destination: "~/artifact.zip"
+  config.vm.provision :shell, privileged: false, inline: "if [ ! -d ~/artifact ]; then unzip -d ~/artifact ~/artifact.zip; fi"
+  config.vm.provision :shell, privileged: false, inline: "if [ ! -d ~/artifact_compiled ]; then cp -r ~/artifact ~/artifact_compiled; fi"
+  config.vm.provision :shell, inline: "sudo apt install -y mupdf"
+  # in case of errors here it's simpler to ignore them
+  config.vm.provision :shell, privileged: false, inline: "ln -sf ~/artifact/21.pdf ~/Desktop/paper.pdf || true"
+  config.vm.provision :shell, privileged: false, inline: "ln -sf ~/artifact/README.md ~/Desktop/README.md || true"
+  config.vm.provision :shell, privileged: false, inline: "ln -sf ~/artifact/src ~/Desktop/src || true"
+
+  # install and configure Proof General
+  config.vm.provision :shell, inline: "sudo apt install -y ttf-ancient-fonts"
+  config.vm.provision :shell, privileged: false, inline: "cd ~/artifact/vagrant/pg_config; ./setup_emacs.sh"
+
+  # install and configure Coqtail
+  config.vm.provision :shell, privileged: false, inline: "mkdir -p ~/.vim/pack/coq/start"
+  config.vm.provision :shell, privileged: false, inline: "if [ ! -d ~/.vim/pack/coq/start/Coqtail ]; then git clone https://github.com/whonore/Coqtail.git ~/.vim/pack/coq/start/Coqtail; fi"
+  config.vm.provision :shell, privileged: false, inline: "vim +helptags\\ ~/.vim/pack/coq/start/Coqtail/doc +q"
+
+  # install CoqIDE
+  config.vm.provision :shell, inline: "sudo apt install -y libgtk-3-dev"
+  config.vm.provision :shell, inline: "sudo apt install -y libgtksourceview-3.0-dev"  
+  config.vm.provision :shell, inline: "sudo apt install -y pkg-config"
+  config.vm.provision :shell, privileged: false, inline: "opam install -y --assume-depexts coqide"
+
+  # make project
+  config.vm.provision :shell, privileged: false, inline: "cd ~/artifact_compiled; make -j 4"
+  
+end
