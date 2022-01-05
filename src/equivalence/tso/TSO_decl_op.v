@@ -1075,15 +1075,16 @@ Proof.
        { apply NoDup_Permutation.
          1, 2: by (eapply Permutation_NoDup; eauto). 
          ins. eapply iff_trans. 
-         { symmetry. generalize x. apply set_equiv_exp_iff. apply sb_sort_sim. }
+         { symmetry. generalize x.
+           apply set_equiv_exp_iff. apply sb_sort_sim. }
          symmetry. eapply iff_trans.
-         { symmetry. generalize x. apply set_equiv_exp_iff. apply sb_sort_sim. }
-         generalize x. apply set_equiv_exp_iff, H. }
+         { symmetry. generalize x.
+           apply set_equiv_exp_iff. apply sb_sort_sim. }
+         generalize x. now apply set_equiv_exp_iff. }
        { apply sort_ninit with (thread := thread); auto. 
-         { rewrite <- H, <- L0, CE_E. basic_solver. }
-         { rewrite <- H, <- L0. basic_solver. } }
-       { auto. }
-  }
+         { rewrite <- L'0, <- L0, CE_E. basic_solver. }
+         rewrite <- L'0, <- L0. basic_solver. }
+       auto. }
   
   assert (StronglySorted ext_sb (sb_sort l ++ Bf_events i)) as SORTED_APP. 
   { apply StronglySorted_app.
@@ -3063,7 +3064,7 @@ Proof.
     unfold cur_events, covered_events. rewrite seq0. simpl.
     arewrite (⦗fun _ : Event => False⦘ ≡ ∅₂) by basic_solver.
     rewrite !seq_false_r, dom_empty, set_inter_empty_l.
-    destruct x; auto. ins. exfalso. apply (proj2 H0 e). auto. }
+    destruct x; auto. ins. exfalso. apply (proj2 a0 e). auto. }
   destruct (classic (NOmega.le (NOnum (S i)) (set_size (E \₁ is_init)))) as [DOM| ].
   2: { exists TSO.Minit. done. }
   red in IHi. specialize_full IHi; [liaW (set_size (E \₁ is_init))| ].

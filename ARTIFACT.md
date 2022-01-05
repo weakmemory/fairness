@@ -1,8 +1,54 @@
-This code contains Coq proofs supplementing the _Making Weak Memory Models Fair_ paper.
-More on the artifact constructed from the code (including a VM image and installation guidelines) are stated in [ARTIFACT.md](ARTIFACT.md).
+This artifact provides the supplementary Coq development for the _Making Weak Memory Models Fair_ paper.
 
-### Project dependencies
-* [Coq 8.14.1](https://coq.inria.fr)
+
+# Getting Started
+
+The easiest way to check proofs is to use the prepared virtual machine.
+
+1. Install VirtualBox (we tested the process with version 6.1) with Oracle VM VirtualBox Extension pack.
+2. Open VirtualBox and navigate to ``File/Import Appliance``. Provide the path to the ``artifact.ova`` file from the downloaded artifact and follow instructions to create a VM.
+3. Run the newly created VM. 
+	- If a "RawFile#0 failed to create the raw output file ..." error occurs, try disabling serial ports in VirtualBox (`right click on VM -> Settings -> Serial Ports -> uncheck "Enable Serial Port" boxes`). See [the discussion](https://github.com/joelhandwell/ubuntu_vagrant_boxes/issues/1) of the related problem.
+4. Login with username and password "vagrant".
+5. Navigate to ``/home/vagrant/artifact_compiled`` in a terminal and run ``make -j 4``. Since proofs are pre-compiled, it should terminate in a second. You may also run ``make clean; make -j 4`` to recompile proofs from scratch (adjust the `-j` parameter according to the number of available cores). 
+6. Run ``grep -HRi admit`` to ensure there are no incomplete proofs.
+7. Check that Coq formalization matches the paper's claims (see the correspondence below).
+8. The VM includes configured Emacs w/ Proof General and Vim w/ Coqtail so you can edit proofs interactively. 
+
+# Step-by-step Instructions
+
+## Reproducing the environment
+
+Besides running the prepared virtual machine, you can reproduce the environment either automatically or manually. 
+
+### Creating a Vagrant box 
+
+Our VM is created using the Vagrant tool, which simplifies virtual machines management. You can reproduce our environment with the configuration we provide.
+
+1. [Install Vagrant](https://www.vagrantup.com/) (we tested the process with version 2.2.16).
+2. Unpack the `artifact.zip` archive somewhere; we'll refer to the resulting folder's path as `artifact/`. 
+3. Copy the `artifact.zip` archive into the `artifact/vagrant` folder. This will allow to copy the artifact code into the VM during the build.
+3. (Optionally) Change the desired amount of RAM that will be dedicated to the VM 
+by changing  the ``v.memory`` parameter in the ``artifact/vagrant/Vagrantfile`` file in the downloaded artifact.
+4. In a terminal, navigate to the ``artifact/vagrant/`` folder and run ``vagrant up``. It will download the base OS image, create a clean VM, install all needed dependencies and editing tools, and import proofs sources into the VM. It may take about an hour to complete. 
+5. After the installation completion, run ``vagrant reload`` to restart the VM with the graphical environment.
+   - If the machine doesn't boot, see the "Getting Started" section for possible workarounds. 
+6. Vagrant build creates `~/artifact` and `~/artifact_compiled` folders and runs `make` in the latter so to edit proofs it's easier to access files in `~/artifact_compiled`. 
+
+### Manual installation
+
+You can reproduce the environment by hand. Any system capable of running `opam` should be appropriate. Note that, depending on your system, it may require additional steps not covered here (especially if you don't have ``opam`` installed already). 
+
+1. [Install ``opam``](https://opam.ocaml.org/doc/Install.html) (we tested the process with version ``2.1.0``). 
+2. Perform ``opam`` initialization: ``opam init -a``. The ``-a`` key makes adjustments in your ``~/.profile`` to ease the ``opam`` usage, so we recommend keeping it. 
+3. Create a new ``opam`` environment, switch to it and update the current shell: ``opam switch create artifact 4.12.0; opam switch set artifact; eval $(opam env)``. Note that creating an environment may take about 20 minutes. Also, note that this step is omitted in Vagrant build, but we strongly recommend performing it in manual installation to isolate the artifact environment. 
+4. Install project dependencies. In a terminal, navigate to the top-level ``artifact/`` folder and run ``configure``. This will add an additional repository to the current ``opam`` environment and install the required dependencies. Note that it may take about 20 minutes. The exact versions of dependencies are specified in ``configure`` file but their latest versions should work as well. 
+5. By that moment you may run ``make`` to compile proofs. 
+6. To edit proofs you can use any appropriate tool available on your system. 
+   - If you choose Emacs note that some characters are missing in the default Emacs font. On Debian-based distributives it can be fixed by installing the ``ttf-ancient-fonts`` package; on other distributives, there should be similar packages. Otherwise, Proof General with ``company-coq`` installed should display everything fine. 
+
+### Project dependencies (already installed in the VM image)
+* [Coq 8.13.2](https://coq.inria.fr)
 * [Hahn library](https://github.com/vafeiadis/hahn) (`coq-hahn`). This library provides useful definitions and proofs of various relations and sets properties, as well as a general trace definition used throughout the development.
 
 ## List of paper claims and definitions supported by the artifact
