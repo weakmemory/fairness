@@ -1,3 +1,8 @@
+.lia.cache
+_CoqProject
+Makefile.coq
+Makefile.coq.conf
+.Makefile.coq.d
 \#*\#
 *.log
 *~
@@ -5,3 +10,5 @@
 *.out
 *.glob
 *.vo
+*.vok
+*.vos
