@@ -2,7 +2,7 @@ This code contains Coq proofs supplementing the _Making Weak Memory Models Fair_
 More on the artifact constructed from the code (including a VM image and installation guidelines) are stated in [ARTIFACT.md](ARTIFACT.md).
 
 ### Project dependencies
-* [Coq 8.14.1](https://coq.inria.fr)
+* [Coq 8.15.1](https://coq.inria.fr)
 * [Hahn library](https://github.com/vafeiadis/hahn) (`coq-hahn`). This library provides useful definitions and proofs of various relations and sets properties, as well as a general trace definition used throughout the development.
 
 ## List of paper claims and definitions supported by the artifact
