@@ -622,11 +622,9 @@ Proof.
   { basic_solver. }
   { pose proof TSO_sb_n_total as [n NTOTAL].
     eapply has_finite_antichainsI; eauto. 
-    eapply n_total_mori with (x0 := ⦗E \₁ is_init⦘ ⨾ (ppo G ∪ implied_fence G) ⨾ ⦗E \₁ is_init⦘).
-    { simpl. apply set_subset_refl2. }
-    { basic_solver 10. }
-    { apply Nat.le_refl. }
-    eauto. 
+    eapply n_total_mori; eauto.
+    { apply set_subset_refl2. }
+    basic_solver 10.
   }
       
   cdes FAIR. 
@@ -1289,7 +1287,7 @@ Proof.
   rename i into n. 
   remember (expanded bf NEMPTY n) as fn. 
   forward eapply (expanded_src bf NEMPTY n) as [i [d [N POS]]]; eauto.  
-  forward eapply DOM_HELPER' with (block_tr_size0 := block_tr_size) as DOMi; eauto.
+  forward eapply DOM_HELPER' with (block_tr_size := block_tr_size) as DOMi; eauto.
   { subst tr_size. liaW block_tr_size. }
   (* forward eapply blocks_reach as BLOCK_STEPS; eauto. simpl in BLOCK_STEPS. *)
   destruct (NOmega_le_lt_or_eq _ _ DOMi). 
@@ -1317,7 +1315,7 @@ Proof.
 
   rewrite Nat.add_0_l.
   replace (List.seq (length (flatten (block_trace_prefix bf i))) d) with (firstn d (List.seq (length (flatten (block_trace_prefix bf i))) (length (bf i)))).
-  { rewrite firstn_map. rewrite <- expanded_block with (NEMPTY0 := NEMPTY); auto. }
+  { rewrite firstn_map. rewrite <- expanded_block with (NEMPTY := NEMPTY); auto. }
   assert (d < length (bf i)).
   { apply nth_error_Some, opt_val. eauto. }
   apply lt_diff in H2 as [k DIFF]. rewrite DIFF.
@@ -2225,7 +2223,7 @@ Proof.
     { rewrite ENUMw. apply ct_step. cut (ppo G w' w); [unfold TSO_hb; basic_solver 10| ].
       unfold ppo. red. split.
       2: { unfolder'. subst w. intuition. }
-      eapply sorted_ordered with (l0 := buf); eauto.
+      eapply sorted_ordered with (l := buf); eauto.
       2: { by rewrite BUF_STRUCT. } 
       rewrite Heqbuf. apply StronglySorted_filterP.
       unfold thread_prefix. unfold sb.
@@ -2599,7 +2597,7 @@ Proof.
   unfold Bf in BF. rewrite emiF, app_nil_r in BF; [| rewrite ENUMr; unfolder'; intuition].
   apply inj_map in BF; [| by red; ins; inversion H].
   rewrite BF, filterP_app. simpl. rewrite emiF, app_nil_r; [| unfolder'; intuition].
-  unfold set_minus. forward eapply filterP_split with (l0 := extra_events_list i) as SPLIT.
+  unfold set_minus. forward eapply filterP_split with (l := extra_events_list i) as SPLIT.
   unfold set_inter in SPLIT. rewrite SPLIT.
   rewrite filterP_all.
   2: { apply Forall_filterP, Forall_forall. ins.
@@ -3286,9 +3284,9 @@ Proof.
     apply expanded_src in EXPm as [im [dm [M SRCm]]]. apply expanded_src in EXPn as [inn [dn [N SRCn]]].
     specialize (BLOCK_WF' im inn dm dn thread index1 index2 lbl1 lbl2). apply BLOCK_WF'; try done.
     2: { eapply DOM_HELPER; eauto. }
-    2: { red. rewrite <- EQ; auto. eapply DOM_HELPER with (n0 := m); eauto.
+    2: { red. rewrite <- EQ; auto. eapply DOM_HELPER with (n := m); eauto.
          eapply NOmega.lt_lt_nat; eauto. }
-    2: { red. rewrite <- EQ; auto. eapply DOM_HELPER with (n0 := n); eauto. }
+    2: { red. rewrite <- EQ; auto. eapply DOM_HELPER with (n := n); eauto. }
     destruct (le_lt_dec inn im); [| by auto]. right.
     apply le_diff in l. desc. subst im.
     subst m n. unfold block_trace_prefix in LT.

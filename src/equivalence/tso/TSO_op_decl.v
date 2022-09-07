@@ -1160,7 +1160,7 @@ Proof.
       red. right. apply seq_eqv_lr. splits; vauto.
       red. split; auto. congruence. }
     apply latest_unique.
-    { apply antisymmetric_inclusion with (r0 := co G); [| basic_solver].
+    { apply antisymmetric_inclusion with (r := co G); [| basic_solver].
       apply strict_partial_order_antisymmetric.
       by destruct (co_loc_total (loc r)). }
     assert (set_finite writes) as WRITES_FIN.
@@ -1223,7 +1223,7 @@ Proof.
       by apply H. }
   forward eapply (@latest_fin _ _ trace_before WRITES_FIN HAS_WRITES) as LATEST'; [vauto| ].
   apply latest_unique in LATEST'.
-  2: { apply antisymmetric_inclusion with (r0 := trace_before); [| basic_solver].
+  2: { apply antisymmetric_inclusion with (r := trace_before); [| basic_solver].
        apply strict_partial_order_antisymmetric. by cdes tb_SPO. }
   unfold unique in LATEST'. desc. exists x. split; [vauto| ].
   red in LATEST'. desc. by rewrite Heqwrites in LATEST'. 
@@ -1387,7 +1387,7 @@ Proof.
   rewrite <- IHd. symmetry. replace (vis w + S (S d)) with (S (vis w + (S d))) by lia.
   assert (NOmega.lt_nat_l (vis w + S d) (trace_length tr)) as DOM'. 
   { destruct (trace_length tr); vauto. simpl in *. lia. }
-  forward eapply (TSi (vis w + S d)) with (d0 := def_lbl) as TSi; auto. 
+  forward eapply (TSi (vis w + S d)) with (d := def_lbl) as TSi; auto. 
   inversion TSi; auto.
   { simpl. destruct (classic (loc = l)).
     2: { rewrite updo; auto. }
@@ -1888,7 +1888,7 @@ Proof.
   remember (count_upto (is_prop ∩₁ in_thread thread) (i + d)) as Pprev.
   assert (Pcur = Pprev + check (is_prop ∩₁ in_thread thread) (trace_nth (i + d) tr def_lbl)) as CUR.
   { subst. by rewrite count_upto_next. }
-  forward eapply (TSi (i + d)) with (d0 := def_lbl) as TSi; auto.  
+  forward eapply (TSi (i + d)) with (d := def_lbl) as TSi; auto.  
   inversion TSi.
   { rewrite check0 in CUR.
     2: { rewrite <- H. unfolder'. intuition. }
